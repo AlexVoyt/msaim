@@ -2,25 +2,25 @@ struct spell
 {
     std::string Name;
 
-    u32 Distance;
-    u32 Radius;
-    u32 Damage;
-    u32 ApCost;
-    u32 Cooldown;
+    i32 Distance;
+    i32 Radius;
+    i32 Damage;
+    i32 ApCost;
+    i32 Cooldown;
 };
 
 struct hero_spec
 {
     std::string ClassName;
 
-    int MinStartingAP;
-    int MaxStartingAP;
+    i32 MinStartingAP;
+    i32 MaxStartingAP;
 
-    int MinStartingHP;
-    int MaxStartingHP;
+    i32 MinStartingHP;
+    i32 MaxStartingHP;
 
-    int MinStartingIni;
-    int MaxStartingIni;
+    i32 MinStartingIni;
+    i32 MaxStartingIni;
 
     std::vector<spell*> Spells;
 };
