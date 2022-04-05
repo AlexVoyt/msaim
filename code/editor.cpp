@@ -1,6 +1,11 @@
-void RenderAttributeSlider(int Id, char* Name, i32* Value, i32 MinValue, i32 MaxValue, ImGuiTreeNodeFlags Flags)
+static std::vector<spell> Spells = {{1, "Self-immolation", 0, 2, 15, 3, 5},
+                                    {2, "Fireball", 3, 1, 8, 2, 1}};
+
+static std::vector<hero_spec> HeroSpecs = {{1, "Warrior", 3, 5, 15, 48, 3, 8}};
+
+void RenderAttributeSlider(int ID, char* Name, i32* Value, i32 MinValue, i32 MaxValue, ImGuiTreeNodeFlags Flags)
 {
-    ImGui::PushID(Id);
+    ImGui::PushID(ID);
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
     ImGui::AlignTextToFramePadding();
@@ -10,6 +15,18 @@ void RenderAttributeSlider(int Id, char* Name, i32* Value, i32 MinValue, i32 Max
     ImGui::SliderInt("##value", Value, MinValue, MaxValue);
     ImGui::NextColumn();
     ImGui::PopID();
+}
+
+void RenderTextInput(char* Name, std::string* String, ImGuiTreeNodeFlags Flags)
+{
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::AlignTextToFramePadding();
+    ImGui::TreeNodeEx(Name, Flags);
+    ImGui::TableSetColumnIndex(1);
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    ImGui::InputText("##Input", String, 0, 0, 0);
+    ImGui::NextColumn();
 }
 
 void ShowHeroSpec(hero_spec* Spec, int uid)
@@ -22,13 +39,22 @@ void ShowHeroSpec(hero_spec* Spec, int uid)
     ImGui::TableSetColumnIndex(0);
     ImGui::AlignTextToFramePadding();
     // ImGui::TableSetColumnIndex(1);
-    // ImGui::InputText("", &Spec->ClassName);
-    bool node_open = ImGui::TreeNode(Spec->ClassName.c_str());
+    // ImGui::InputText("", &Spec->Name);
+    bool NodeOpen = ImGui::TreeNode((void*)(intptr_t)uid, "%s", Spec->Name.data());
+    ImGui::TableSetColumnIndex(1);
+    ImGui::SetNextItemWidth(-FLT_MIN);
 
-    if(node_open)
+    // TODO:
+    if(ImGui::Button("Delete"))
+    {
+        HeroSpecs.erase(HeroSpecs.begin() + uid);
+    }
+
+    if(NodeOpen)
     {
         ImGuiTreeNodeFlags Flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
 
+        RenderTextInput("Name", &Spec->Name, Flags);
         RenderAttributeSlider(0, "MinStartingAP", &Spec->MinStartingAP, 1, Spec->MaxStartingAP, Flags);
         RenderAttributeSlider(1, "MaxStartingAP", &Spec->MaxStartingAP, Spec->MinStartingAP, 100, Flags);
         RenderAttributeSlider(2, "MinStartingHP", &Spec->MinStartingHP, 1, Spec->MaxStartingHP, Flags);
@@ -36,11 +62,21 @@ void ShowHeroSpec(hero_spec* Spec, int uid)
         RenderAttributeSlider(4, "MinStartingIni", &Spec->MinStartingIni, 1, Spec->MaxStartingIni, Flags);
         RenderAttributeSlider(5, "MaxStartingIni", &Spec->MaxStartingIni, Spec->MinStartingIni, 100, Flags);
 
-#if 0
+#if 1
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::TreeNodeEx("Available Spells", Flags);
+        ImGui::TableSetColumnIndex(1);
         u32 SpellsLength = Spells.size();
         for(u32 SpellIndex = 0; SpellIndex < SpellsLength; SpellIndex++)
         {
+            bool HasSpell = true;
+            spell* Spell = &Spells[SpellIndex];
+            if(ImGui::Checkbox(Spell->Name.c_str(), &HasSpell))
+            {
+            }
         }
+        ImGui::NextColumn();
 #endif
 
         ImGui::TreePop();
@@ -48,10 +84,6 @@ void ShowHeroSpec(hero_spec* Spec, int uid)
     ImGui::PopID();
 }
 
-static std::vector<spell> Spells = {{"Self-immolation", 0, 2, 15, 3, 5},
-                                    {"Fireball", 3, 1, 8, 2, 1}};
-
-static std::vector<hero_spec> HeroSpecs = {{"Warrior", 3, 5, 15, 48, 3, 8}};
 void RenderHeroSpecEditor()
 {
 
@@ -64,12 +96,14 @@ void RenderHeroSpecEditor()
         {
             hero_spec* Spec = &HeroSpecs[SpecIndex];
             ShowHeroSpec(Spec, SpecIndex);
-            //ImGui::Separator();
+            // ImGui::Separator();
         }
         ImGui::EndTable();
+
+
         if(ImGui::Button("Add new hero spec"))
         {
-            hero_spec Spec = {"New Spec", 1, 1, 1, 1, 1, 1};
+            hero_spec Spec = {3, "New Spec", 1, 1, 1, 1, 1, 1};
             HeroSpecs.push_back(Spec);
         }
 
@@ -88,8 +122,8 @@ void ShowSpellAttr(spell* Spell, int uid)
     ImGui::TableSetColumnIndex(0);
     ImGui::AlignTextToFramePadding();
     // ImGui::TableSetColumnIndex(1);
-    // ImGui::InputText("", &Spec->ClassName);
-    bool NodeOpen = ImGui::TreeNode(Spell->Name.c_str());
+    // ImGui::InputText("", &Spec->Name);
+    bool NodeOpen = ImGui::TreeNode((void*)(intptr_t)uid, "%s", Spell->Name.data());
 
     if(NodeOpen)
     {
@@ -99,6 +133,7 @@ void ShowSpellAttr(spell* Spell, int uid)
         i32 MinRadius   = Spell->Distance == 0 ? 1 : 0;
         i32 MinDistance = Spell->Radius   == 0 ? 1 : 0;
 
+        RenderTextInput("Name", &Spell->Name, Flags);
         RenderAttributeSlider(0, "Distance", &Spell->Distance, MinDistance, 10, Flags);
         RenderAttributeSlider(1, "Radius", &Spell->Radius, MinRadius, 10, Flags);
         RenderAttributeSlider(2, "Damage", &Spell->Damage, 1, 50, Flags);
@@ -128,7 +163,7 @@ void RenderSpellEditor()
         ImGui::EndTable();
         if(ImGui::Button("Add new spell"))
         {
-            spell Spell = {"New Spell", 1, 1, 1, 1, 1};
+            spell Spell = {69, "New Spell", 1, 1, 1, 1, 1};
             Spells.push_back(Spell);
         }
 

@@ -3,3 +3,4 @@ imgui
 *.un~
 *.swp
 *.pdb
+code/.vs
