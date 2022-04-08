@@ -7,6 +7,13 @@
 #include "imgui.h"
 #include "imgui_stdlib.h"
 
+struct InputTextCallback_UserData
+{
+    std::string* Str;
+    ImGuiInputTextCallback ChainCallback;
+    void* ChainCallbackUserData;
+};
+
 static int InputTextCallback(ImGuiInputTextCallbackData* data)
 {
     InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
@@ -27,6 +34,10 @@ bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags f
     IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
     flags |= ImGuiInputTextFlags_CallbackResize;
 
+    InputTextCallback_UserData cb_user_data;
+    cb_user_data.Str = str;
+    cb_user_data.ChainCallback = callback;
+    cb_user_data.ChainCallbackUserData = user_data;
     return InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 }
 

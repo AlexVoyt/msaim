@@ -2,7 +2,7 @@ struct hero_spec;
 
 struct spell
 {
-    i32 ID; // TODO: do we need id?
+    i32 ID;
     std::string Name;
 
     i32 Distance;
@@ -14,7 +14,7 @@ struct spell
 
 struct hero_spec
 {
-    i32 ID; // TODO: do we need id?
+    i32 ID;
     std::string Name;
 
     i32 MinStartingAP;
@@ -33,7 +33,10 @@ struct hero_spec_spell
     i32 SpellID;
 };
 
-void CreateDatabase()
+static std::vector<spell> Spells;
+static std::vector<hero_spec> HeroSpecs;
+
+inline auto CreateDatabase()
 {
     using namespace sqlite_orm;
     auto Storage = make_storage("db.sqlite",
@@ -63,6 +66,18 @@ void CreateDatabase()
                     foreign_key(&hero_spec_spell::SpellID)
                         .references(&spell::ID).on_delete.cascade()));
 
+
     Storage.sync_schema(true);
 
+    return Storage;
+}
+
+using storage = decltype(CreateDatabase());
+void LoadHeroSpecs(std::unique_ptr<storage>& Storage)
+{
+    HeroSpecs = Storage->get_all<hero_spec>();
+}
+
+void AddHeroSpecToDatabase()
+{
 }
