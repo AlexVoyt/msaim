@@ -179,7 +179,23 @@ void RenderHeroSpecEditor()
                 RenderAttributeSlider(3, "MaxStartingHP", &Spec->MaxStartingHP, Spec->MinStartingHP, 100);
                 RenderAttributeSlider(4, "MinStartingIni", &Spec->MinStartingIni, 1, Spec->MaxStartingIni);
                 RenderAttributeSlider(5, "MaxStartingIni", &Spec->MaxStartingIni, Spec->MinStartingIni, 100);
-                if (ImGui::Button("Save")) {}
+
+                u32 DisableSave = Spec->Name.size() == 0 ? 1 : 0;
+                if(DisableSave)
+                    ImGui::BeginDisabled();
+
+                if(ImGui::Button("Save"))
+                {
+                    UpdateHeroSpecInDatabase(Storage, HeroSpecs, Spec);
+                }
+
+                if(DisableSave && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+                    // TODO: tooltip also counts as disabled, so it renders transparent
+                    ImGui::SetTooltip("You must enter name before saving hero specification");
+
+                if(DisableSave)
+                    ImGui::EndDisabled();
+
                 ImGui::PopID();
             }
 
@@ -195,7 +211,23 @@ void RenderHeroSpecEditor()
                 RenderAttributeSlider(3, "MaxStartingHP", &EditingSpec->MaxStartingHP, EditingSpec->MinStartingHP, 100);
                 RenderAttributeSlider(4, "MinStartingIni", &EditingSpec->MinStartingIni, 1, EditingSpec->MaxStartingIni);
                 RenderAttributeSlider(5, "MaxStartingIni", &EditingSpec->MaxStartingIni, EditingSpec->MinStartingIni, 100);
-                if (ImGui::Button("Add")) {}
+
+                u32 DisableAdd = EditingSpec->Name.size() == 0 ? 1 : 0;
+                if(DisableAdd)
+                    ImGui::BeginDisabled();
+
+                if(ImGui::Button("Add"))
+                {
+                    AddHeroSpecToDatabase(Storage, HeroSpecs, EditingSpec);
+                }
+
+                if(DisableAdd && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
+                    // TODO: tooltip also counts as disabled, so it renders transparent
+                    ImGui::SetTooltip("You must enter name before adding hero specification");
+
+                if(DisableAdd)
+                    ImGui::EndDisabled();
+
                 ImGui::PopID();
             }
         }

@@ -73,11 +73,26 @@ inline auto CreateDatabase()
 }
 
 using storage = decltype(CreateDatabase());
+std::unique_ptr<storage> Storage;
+
 void LoadHeroSpecs(std::unique_ptr<storage>& Storage)
 {
     HeroSpecs = Storage->get_all<hero_spec>();
 }
 
-void AddHeroSpecToDatabase()
+void AddHeroSpecToDatabase(std::unique_ptr<storage>& Storage,
+                           std::vector<hero_spec>& Specs,
+                           hero_spec* Spec)
 {
+    hero_spec ToAdd = *Spec;
+    auto InsertedID = Storage->insert(ToAdd);
+    ToAdd.ID = InsertedID;
+    Specs.push_back(ToAdd);
+}
+
+void UpdateHeroSpecInDatabase(std::unique_ptr<storage>& Storage,
+                              std::vector<hero_spec>& Specs,
+                              hero_spec* Spec)
+{
+    Storage->update(*Spec);
 }

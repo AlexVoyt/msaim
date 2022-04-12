@@ -102,7 +102,7 @@ int main(int, char**)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     // Create database and load all information
-    std::unique_ptr<storage> Storage = std::make_unique<storage>(CreateDatabase());
+    Storage = std::make_unique<storage>(CreateDatabase());
 
     // Load hero specs
     LoadHeroSpecs(Storage);
