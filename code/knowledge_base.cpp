@@ -27,14 +27,21 @@ struct hero_spec
     i32 MaxStartingIni;
 };
 
-struct hero_spec_spell
+struct available_spell
 {
     i32 SpecID;
     i32 SpellID;
 };
 
+inline bool operator==(const available_spell& lhs, const available_spell& rhs)
+{
+    return lhs.SpecID  == rhs.SpecID &&
+           lhs.SpellID == rhs.SpellID;
+}
+
 static std::vector<spell> Spells;
 static std::vector<hero_spec> HeroSpecs;
+static std::vector<available_spell> AvailableSpells;
 
 inline auto CreateDatabase()
 {
@@ -57,13 +64,13 @@ inline auto CreateDatabase()
                     make_column("Damage", &spell::Damage),
                     make_column("ApCost", &spell::ApCost),
                     make_column("Cooldown", &spell::Cooldown)),
-        make_table("HeroSpecs_Spells",
-                    make_column("SpecID", &hero_spec_spell::SpecID),
-                    make_column("SpellID", &hero_spec_spell::SpellID),
-                    primary_key(&hero_spec_spell::SpecID, &hero_spec_spell::SpellID),
-                    foreign_key(&hero_spec_spell::SpecID)
+        make_table("AvailableSpells",
+                    make_column("SpecID", &available_spell::SpecID),
+                    make_column("SpellID", &available_spell::SpellID),
+                    primary_key(&available_spell::SpecID, &available_spell::SpellID),
+                    foreign_key(&available_spell::SpecID)
                         .references(&hero_spec::ID).on_delete.cascade(),
-                    foreign_key(&hero_spec_spell::SpellID)
+                    foreign_key(&available_spell::SpellID)
                         .references(&spell::ID).on_delete.cascade()));
 
 
@@ -75,24 +82,43 @@ inline auto CreateDatabase()
 using storage = decltype(CreateDatabase());
 std::unique_ptr<storage> Storage;
 
-void LoadHeroSpecs(std::unique_ptr<storage>& Storage)
+template<class T>
+void LoadItems(std::unique_ptr<storage>& Storage,
+               std::vector<T>& Items)
 {
-    HeroSpecs = Storage->get_all<hero_spec>();
+    Items = Storage->get_all<T>();
 }
 
-void AddHeroSpecToDatabase(std::unique_ptr<storage>& Storage,
-                           std::vector<hero_spec>& Specs,
-                           hero_spec* Spec)
+template<class T>
+void AddItemToDatabase(std::unique_ptr<storage>& Storage,
+                       std::vector<T>& Items,
+                       T* Item)
 {
-    hero_spec ToAdd = *Spec;
+    T ToAdd = *Item;
     auto InsertedID = Storage->insert(ToAdd);
     ToAdd.ID = InsertedID;
-    Specs.push_back(ToAdd);
+    Items.push_back(ToAdd);
 }
 
-void UpdateHeroSpecInDatabase(std::unique_ptr<storage>& Storage,
-                              std::vector<hero_spec>& Specs,
-                              hero_spec* Spec)
+template<>
+void AddItemToDatabase<available_spell>(std::unique_ptr<storage>& Storage,
+                                        std::vector<available_spell>& Items,
+                                        available_spell* Item)
 {
-    Storage->update(*Spec);
+    Storage->replace(*Item);
+    Items.push_back(*Item);
+}
+
+template<class T>
+void UpdateItemInDatabase(std::unique_ptr<storage>& Storage,
+                          T* Item)
+{
+    Storage->update(*Item);
+}
+
+template<class T>
+void DeleteItemFromDatabase(std::unique_ptr<storage>& Storage,
+                            T* Item)
+{
+    Storage->remove<T>(Item->ID);
 }

@@ -104,8 +104,10 @@ int main(int, char**)
     // Create database and load all information
     Storage = std::make_unique<storage>(CreateDatabase());
 
-    // Load hero specs
-    LoadHeroSpecs(Storage);
+    // Load data from database
+    LoadItems<hero_spec>(Storage, HeroSpecs);
+    LoadItems<spell>(Storage, Spells);
+    LoadItems<available_spell>(Storage, AvailableSpells);
 
     // Main loop
     bool done = false;

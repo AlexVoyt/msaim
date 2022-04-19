@@ -12,5 +12,5 @@ if "%1%" == "full" (
     @set LIBS=..\Build\imgui*.obj /LIBPATH:"%DXSDK_DIR%/Lib/x86" d3d11.lib d3dcompiler.lib lib\sqlite3.lib
 )
 mkdir %OUT_DIR%
-cl /nologo /Zi /MD /std:c++17 /EHsc %INCLUDES% /D UNICODE /D _UNICODE %SOURCES% /Fe%OUT_DIR%/%OUT_EXE%.exe /Fo%OUT_DIR%/ /link %LIBS%
+cl /nologo /Zi /Od /MD /std:c++17 /EHsc %INCLUDES% /D UNICODE /D _UNICODE %SOURCES% /Fe%OUT_DIR%/%OUT_EXE%.exe /Fo%OUT_DIR%/ /link %LIBS%
 
