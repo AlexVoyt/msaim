@@ -11,20 +11,49 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <stdio.h>
+#include <assert.h>
 
 typedef uint8_t  u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
-typedef int8_t  i8;
-typedef int16_t i16;
-typedef int32_t i32;
-typedef int64_t i64;
+typedef int8_t  s8;
+typedef int16_t s16;
+typedef int32_t s32;
+typedef int64_t s64;
+
+typedef float f32;
+
+enum program_mode
+{
+    PM_Menu,
+    PM_Editor,
+    PM_GameSetup,
+    PM_Game,
+};
+
+static program_mode GlobalProgramMode = PM_Menu;
+
 
 #include "sqlite_orm.h"
 #include "knowledge_base.cpp"
 #include "editor.cpp"
+#include "math.h"
+#include "hex.cpp"
+struct hero
+{
+    s32 SpecID;
+    hex Position;
+    u32 Team;
+};
+
+#include "layout.cpp"
+#include "map.cpp"
+#include "game.cpp"
 
 // Data
 static ID3D11Device*            g_pd3dDevice = NULL;
@@ -39,6 +68,22 @@ void CreateRenderTarget();
 void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
+void RenderMenu()
+{
+    ImGui::Begin("Menu");
+    if(ImGui::Button("Editor"))
+    {
+        GlobalProgramMode = PM_Editor;
+    }
+
+    if(ImGui::Button("Game"))
+    {
+        GlobalProgramMode = PM_Game;
+    }
+    ImGui::End();
+}
+
+
 // Main code
 int main(int, char**)
 {
@@ -46,7 +91,7 @@ int main(int, char**)
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
     ::RegisterClassEx(&wc);
-    HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("Dear ImGui DirectX11 Example"), WS_OVERLAPPEDWINDOW, 100, 100, 1600, 800, NULL, NULL, wc.hInstance, NULL);
+    HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("Expert system"), WS_OVERLAPPEDWINDOW, 100, 100, 1600, 800, NULL, NULL, wc.hInstance, NULL);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -134,7 +179,31 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        RenderEditor();
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+        switch(GlobalProgramMode)
+        {
+            case PM_Menu:
+            {
+                RenderMenu();
+            } break;
+
+            case PM_Editor:
+            {
+                RenderEditor();
+            } break;
+
+            case PM_Game:
+            {
+                RenderGame();
+            } break;
+
+            case PM_GameSetup:
+            {
+                assert(0);
+                // RenderGame();
+            } break;
+        }
+        // ImGui::ShowDemoWindow();
 
         // Rendering
         ImGui::Render();

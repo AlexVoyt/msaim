@@ -2,35 +2,35 @@ struct hero_spec;
 
 struct spell
 {
-    i32 ID;
+    s32 ID;
     std::string Name;
 
-    i32 Distance;
-    i32 Radius;
-    i32 Damage;
-    i32 ApCost;
-    i32 Cooldown;
+    s32 Distance;
+    s32 Radius;
+    s32 Damage;
+    s32 ApCost;
+    s32 Cooldown;
 };
 
 struct hero_spec
 {
-    i32 ID;
+    s32 ID;
     std::string Name;
 
-    i32 MinStartingAP;
-    i32 MaxStartingAP;
+    s32 MinStartingAP;
+    s32 MaxStartingAP;
 
-    i32 MinStartingHP;
-    i32 MaxStartingHP;
+    s32 MinStartingHP;
+    s32 MaxStartingHP;
 
-    i32 MinStartingIni;
-    i32 MaxStartingIni;
+    s32 MinStartingIni;
+    s32 MaxStartingIni;
 };
 
 struct available_spell
 {
-    i32 SpecID;
-    i32 SpellID;
+    s32 SpecID;
+    s32 SpellID;
 };
 
 inline bool operator==(const available_spell& lhs, const available_spell& rhs)

@@ -3,7 +3,7 @@ static spell EditingSpell_ = {0, "New Spell", 1, 1, 1, 1, 1};
 static bool True = true;
 static bool False = false;
 
-void RenderAttributeSliderTree(int ID, char* Name, i32* Value, i32 MinValue, i32 MaxValue, ImGuiTreeNodeFlags Flags)
+void RenderAttributeSliderTree(int ID, char* Name, s32* Value, s32 MinValue, s32 MaxValue, ImGuiTreeNodeFlags Flags)
 {
     ImGui::PushID(ID);
     ImGui::TableNextRow();
@@ -17,7 +17,7 @@ void RenderAttributeSliderTree(int ID, char* Name, i32* Value, i32 MinValue, i32
     ImGui::PopID();
 }
 
-void RenderAttributeSlider(int ID, char* Name, i32* Value, i32 MinValue, i32 MaxValue)
+void RenderAttributeSlider(int ID, char* Name, s32* Value, s32 MinValue, s32 MaxValue)
 {
     ImGui::PushID(ID);
     ImGui::AlignTextToFramePadding();
@@ -29,7 +29,7 @@ void RenderAttributeSlider(int ID, char* Name, i32* Value, i32 MinValue, i32 Max
     ImGui::PopID();
 }
 
-void RenderAttributeRangeDrag(int ID, char* Name, i32* Min, i32* Max, u32 Step, i32 MinValue, i32 MaxValue, char* MinFormat, char* MaxFormat)
+void RenderAttributeRangeDrag(int ID, char* Name, s32* Min, s32* Max, u32 Step, s32 MinValue, s32 MaxValue, char* MinFormat, char* MaxFormat)
 {
     ImGui::PushID(ID);
     ImGui::AlignTextToFramePadding();
@@ -238,8 +238,8 @@ void RenderSpellEditor()
             Spell = &Spells[Selected];
             {
                 // Radius and distance cannot be both 0
-                i32 MinRadius   = Spell->Distance == 0 ? 1 : 0;
-                i32 MinDistance = Spell->Radius   == 0 ? 1 : 0;
+                s32 MinRadius   = Spell->Distance == 0 ? 1 : 0;
+                s32 MinDistance = Spell->Radius   == 0 ? 1 : 0;
 
                 ImGui::PushID("Editing");
                 RenderTextInput("Name", &Spell->Name);
@@ -259,7 +259,7 @@ void RenderSpellEditor()
                 }
 
                 if(DisableSave && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-                    ImGui::SetTooltip("You must enter name before saving hero specification");
+                    ImGui::SetTooltip("You must enter name before saving spell");
 
                 if(DisableSave)
                     ImGui::EndDisabled();
@@ -281,8 +281,8 @@ void RenderSpellEditor()
             spell* EditingSpell = &EditingSpell_;
 
             // Radius and distance cannot be both 0
-            i32 MinRadius   = EditingSpell->Distance == 0 ? 1 : 0;
-            i32 MinDistance = EditingSpell->Radius   == 0 ? 1 : 0;
+            s32 MinRadius   = EditingSpell->Distance == 0 ? 1 : 0;
+            s32 MinDistance = EditingSpell->Radius   == 0 ? 1 : 0;
 
             ImGui::PushID("Creating");
             RenderTextInput("Name", &EditingSpell->Name);
@@ -302,7 +302,7 @@ void RenderSpellEditor()
             }
 
             if(DisableAdd && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
-                ImGui::SetTooltip("You must enter name before adding hero specification");
+                ImGui::SetTooltip("You must enter name before adding spell");
 
             if(DisableAdd)
                 ImGui::EndDisabled();
@@ -318,8 +318,12 @@ void RenderSpellEditor()
 
 void RenderEditor()
 {
-    ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+    ImGui::Begin("Editor");
+    if(ImGui::Button("Back"))
+    {
+        GlobalProgramMode = PM_Menu;
+    }
     RenderHeroSpecEditor();
     RenderSpellEditor();
-    ImGui::ShowDemoWindow();
+    ImGui::End();
 }
