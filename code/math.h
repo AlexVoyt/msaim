@@ -50,6 +50,31 @@ ImVec2 V2(f32 X, f32 Y)
 {
     return ImVec2(X, Y);
 }
+
+s32 Min(s32 A, s32 B)
+{
+    if(A < B)
+    {
+        return A;
+    }
+    else
+    {
+        return B;
+    }
+}
+
+s32 Max(s32 A, s32 B)
+{
+    if(A < B)
+    {
+        return B;
+    }
+    else
+    {
+        return A;
+    }
+}
+
 #endif
 
 #define Pi           3.14159265358979323846

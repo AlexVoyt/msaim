@@ -1,8 +1,12 @@
 #ifndef GAME_CPP
 #define GAME_CPP
 
+static u32 DefaultHexColor = 0xFF00FFFF;
+static u32 MouseHighlightColor = 0xFF0000FF;
+static u32 MoveHighlightColor = 0xFF00FF00;
+
 // TODO: maybe pass layout by pointer
-void RenderHex(ImDrawList* DrawList, layout Layout, hex Hex, u32 Color = 0xFF00FFFF)
+void RenderHex(ImDrawList* DrawList, layout Layout, hex Hex, u32 Color = DefaultHexColor)
 {
     std::vector<v2> Corners = PolygonCorners(Layout, Hex);
 
@@ -12,6 +16,27 @@ void RenderHex(ImDrawList* DrawList, layout Layout, hex Hex, u32 Color = 0xFF00F
     {
         DrawList->AddLine(Offset + Corners[Index],
                           Offset + Corners[(Index + 1) % 6], Color, Thickness);
+    }
+}
+
+void HighlightHexes(ImDrawList* DrawList, map* Map, layout Layout, hex P, s32 R, u32 Color)
+{
+    std::vector<hex> Hexes;
+    for(s32 QIndex = -R; QIndex <= +R; QIndex++)
+    {
+        for(s32 RIndex = Max(-R, -QIndex - R); RIndex <= Min(R, -QIndex + R); RIndex++)
+        {
+            s32 SIndex = -QIndex-RIndex;
+            Hexes.push_back(P + hex(QIndex, RIndex, SIndex));
+        }
+    }
+
+    for(const hex& Hex : Hexes)
+    {
+        if(HasHex(Map, Hex))
+        {
+            RenderHex(DrawList, Layout, Hex, Color);
+        }
     }
 }
 
@@ -50,7 +75,12 @@ void RenderDebugOverlay(map* Map, layout Layout)
 {
     static bool Enable = true;
     ImGuiIO& IO = ImGui::GetIO();
-    ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+    ImGuiWindowFlags WindowFlags = ImGuiWindowFlags_NoDecoration |
+                                   ImGuiWindowFlags_NoDocking |
+                                   ImGuiWindowFlags_AlwaysAutoResize |
+                                   ImGuiWindowFlags_NoSavedSettings |
+                                   ImGuiWindowFlags_NoFocusOnAppearing |
+                                   ImGuiWindowFlags_NoNav;
     ImGui::SetNextWindowBgAlpha(0.35f);
     if (ImGui::Begin("Debug overlay", &Enable, WindowFlags))
     {
@@ -111,7 +141,7 @@ void RenderGame()
         CameraOffset.y += io.MouseDelta.y;
     }
 
-    hero Hero = {HeroSpecs[0].ID, hex(0, 1, -1), 1};
+    hero Hero = {HeroSpecs[0].ID, hex(0, 1, -1), 1, 3};
     map Map = RectangularMap(-5, 5, -2, 2);
     PlaceHero(&Map, &Hero, hex(0, 1, -1));
     layout Layout = layout::Get();
@@ -123,15 +153,15 @@ void RenderGame()
         RenderHex(DrawList, Layout, Hex);
     }
 
+    RenderHeroes(DrawList, &Map, Layout);
+    RenderDebugOverlay(&Map, Layout);
+    HighlightHexes(DrawList, &Map, Layout, Hero.Position, Hero.MoveSpeed, MoveHighlightColor);
+
     hex Hovered(0, 0, 0);
     if(GetHexUnderMouse(&Map, Layout, &Hovered))
     {
-        RenderHex(DrawList, Layout, Hovered, 0xFF0000FF);
+        RenderHex(DrawList, Layout, Hovered, MouseHighlightColor);
     }
-
-    RenderHeroes(DrawList, &Map, Layout);
-    RenderDebugOverlay(&Map, Layout);
-
 
 
     ImGui::End();

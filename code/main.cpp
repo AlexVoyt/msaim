@@ -36,19 +36,22 @@ enum program_mode
     PM_Game,
 };
 
-static program_mode GlobalProgramMode = PM_Menu;
-
+static program_mode GlobalProgramMode = PM_Game;
 
 #include "sqlite_orm.h"
 #include "knowledge_base.cpp"
 #include "editor.cpp"
 #include "math.h"
 #include "hex.cpp"
+
+
+
 struct hero
 {
     s32 SpecID;
     hex Position;
     u32 Team;
+    u32 MoveSpeed;
 };
 
 #include "layout.cpp"
